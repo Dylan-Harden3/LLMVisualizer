@@ -1,0 +1,18 @@
+[server]
+headless = true
+
+[theme]
+base = "light"  # Change to "dark" if you prefer a dark theme
+
+[browser]
+gatherUsageStats = false
+
+[global]
+# Hide the "Made with Streamlit" footer and other branding
+showWarningOnDirectExecution = false
+
+[ui]
+hideTopBar = true
+
+[client]
+toolbarMode = "viewer"
