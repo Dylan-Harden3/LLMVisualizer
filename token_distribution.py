@@ -6,7 +6,7 @@ from collections import Counter
 from custom_css import apply_custom_css
 
 def create_bottom_ui():
-    col1, col2 = st.columns([3, 1])
+    col1, col2 = st.columns([4, 1])
     with col1:
         context = st.text_area("Enter text for context-based distribution:", 
                                "The quick brown fox jumps over the lazy dog.",
@@ -19,7 +19,7 @@ def token_distribution_page():
     apply_custom_css()
 
     # Create two columns: one for the plot, one for the controls
-    col1, col2 = st.columns([7, 3])
+    col1, col2 = st.columns([8, 2])
 
     with col1:
         # Move the model selection dropdown here
