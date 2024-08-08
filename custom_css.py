@@ -1,4 +1,6 @@
 import streamlit as st
+
+
 def apply_custom_css():
     st.markdown(
         """
@@ -8,5 +10,5 @@ def apply_custom_css():
         }
         </style>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
