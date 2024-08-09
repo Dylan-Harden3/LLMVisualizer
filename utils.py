@@ -1,28 +1,30 @@
 import torch
 import torch.nn.functional as F
 
+
 def temperature_sampling(logits, temperature):
     """
     Apply temperature scaling to the logits.
-    
+
     Args:
         logits (torch.Tensor): The output logits of your language model.
         temperature (float): The temperature value to apply.
-    
+
     Returns:
         torch.Tensor: The scaled logits.
     """
     scaled_logits = logits / temperature
     return scaled_logits
 
+
 def top_p_sampling(logits, top_p=0.9):
     """
     Apply top-p (nucleus) sampling to the logits.
-    
+
     Args:
         logits (torch.Tensor): The output logits of your language model.
         top_p (float): The cumulative probability threshold to use for top-p sampling.
-    
+
     Returns:
         torch.Tensor: The logits with top-p sampling applied.
     """
@@ -35,5 +37,5 @@ def top_p_sampling(logits, top_p=0.9):
     sorted_indices_to_remove[..., 0] = 0
 
     indices_to_remove = sorted_indices[sorted_indices_to_remove]
-    logits[indices_to_remove] = -float('Inf')
+    logits[indices_to_remove] = -float("Inf")
     return logits

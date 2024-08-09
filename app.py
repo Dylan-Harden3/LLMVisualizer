@@ -1,10 +1,11 @@
 import streamlit as st
 from next_token_distribution import token_distribution_page
-from attention_visualizer import attention_visualization_page
+
+# from attention_visualizer import attention_visualization_page
 
 PAGES = {
     "Token Distribution": token_distribution_page,
-    "Attention Visualization": attention_visualization_page,
+    "Attention Visualization": token_distribution_page,
 }
 
 

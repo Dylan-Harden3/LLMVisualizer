@@ -2,6 +2,7 @@ import streamlit as st
 import plotly.graph_objects as go
 from backend import load_model_and_tokenizer, get_attention_filters
 
+
 def create_attention_plot(tokens, attention_matrix, layer_index, head_index):
     num_tokens = len(tokens)
     attention_head_matrix = attention_matrix[layer_index][head_index].cpu().numpy()
@@ -48,14 +49,20 @@ def create_attention_plot(tokens, attention_matrix, layer_index, head_index):
 
     return fig
 
+
 def attention_visualization_page():
     st.title("Attention Visualization")
 
     # Model selection and input text
-    model_name = st.selectbox("Select Model", ["meta-llama/Meta-Llama-3.1-8B-Instruct", "gpt2", "bert-base-uncased"])
-    user_input = st.text_area("Enter text for attention visualization:",
-                              "The quick brown fox jumps over the lazy dog",
-                              height=100)
+    model_name = st.selectbox(
+        "Select Model",
+        ["meta-llama/Meta-Llama-3.1-8B-Instruct", "gpt2", "bert-base-uncased"],
+    )
+    user_input = st.text_area(
+        "Enter text for attention visualization:",
+        "The quick brown fox jumps over the lazy dog",
+        height=100,
+    )
 
     if st.button("Visualize Attention"):
         # Load model and tokenizer
@@ -67,18 +74,23 @@ def attention_visualization_page():
         # Dropdowns for selecting attention layer and head
         col1, col2 = st.columns([1, 1])
         with col1:
-            layer_index = st.selectbox("Select Attention Layer",
-                                       options=list(range(len(attention_matrices))),
-                                       index=0)
+            layer_index = st.selectbox(
+                "Select Attention Layer",
+                options=list(range(len(attention_matrices))),
+                index=0,
+            )
         with col2:
-            head_index = st.selectbox("Select Attention Head",
-                                      options=list(range(attention_matrices[0].size(1))),
-                                      index=0)
+            head_index = st.selectbox(
+                "Select Attention Head",
+                options=list(range(attention_matrices[0].size(1))),
+                index=0,
+            )
 
         # Create and display the plot
         tokens = tokenizer.tokenize(user_input)
         fig = create_attention_plot(tokens, attention_matrices, layer_index, head_index)
         st.plotly_chart(fig, use_container_width=True)
+
 
 if __name__ == "__main__":
     attention_visualization_page()
