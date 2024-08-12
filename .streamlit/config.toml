@@ -1,9 +1,6 @@
 [server]
 headless = true
 
-[theme]
-base = "light"  # Change to "dark" if you prefer a dark theme
-
 [browser]
 gatherUsageStats = false
 
@@ -16,3 +13,9 @@ hideTopBar = true
 
 [client]
 toolbarMode = "viewer"
+
+[theme]
+primaryColor = "#0f62fe"  # IBM Carbon primary blue
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f4f4f4"
+textColor = "#161616"

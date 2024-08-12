@@ -1,6 +1,8 @@
 import requests
-import json
 from urllib.parse import quote
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Base URL of your Flask server
 BASE_URL = "http://localhost:5000"
@@ -29,6 +31,7 @@ def test_next_token_distribution(input_text):
         print(
             f"Top 5 probabilities: {sorted(data['top_probabilities'], reverse=True)[:5]}"
         )
+        print(f"Top 5 tokens: {data['top_tokens'][:5]}")
     else:
         print(f"Error: {response.status_code} - {response.text}")
 

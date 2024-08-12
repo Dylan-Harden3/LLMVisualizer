@@ -58,7 +58,7 @@ def load_model_and_tokenizer(model_name):
 @app.route("/next_token_distribution", methods=["GET"])
 def next_token_distribution():
     model_name = request.args.get("model_name")
-    input_text = request.args.get("text")
+    input_text = request.args.get("text").rstrip()
 
     if not model_name or not input_text:
         return jsonify({"error": "Missing model_name or text parameter"}), 400
@@ -81,7 +81,9 @@ def next_token_distribution():
     top_probs, top_indices = torch.topk(next_token_distribution, k=top_k)
 
     # Decode top tokens
-    top_tokens = [tokenizer.decode([idx.item()]) for idx in top_indices]
+    top_tokens = []
+    for idx in top_indices:
+        top_tokens.append(tokenizer.decode(idx.item()))
 
     return jsonify(
         {
