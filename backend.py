@@ -15,6 +15,33 @@ current_model = None
 current_tokenizer = None
 
 
+
+# Global variables for caching
+current_model_name = None
+current_tokenizer = None
+
+def load_tokenizer(model_name):
+    global current_model_name, current_tokenizer
+
+    if model_name != current_model_name:
+        # Clear current tokenizer if it exists
+        if current_tokenizer is not None:
+            del current_tokenizer
+            torch.cuda.empty_cache()  # Clear CUDA cache
+
+        # Get Hugging Face API token from environment variable
+        HF_API_TOKEN = os.getenv("HUGGING_FACE_API_TOKEN")
+
+        # Load the tokenizer with the API token
+        current_tokenizer = AutoTokenizer.from_pretrained(
+            model_name, use_auth_token=HF_API_TOKEN, add_bos_token=False
+        )
+
+        current_model_name = model_name
+
+    return current_tokenizer
+
+
 def load_model_and_tokenizer(model_name):
     global current_model_name, current_model, current_tokenizer
 

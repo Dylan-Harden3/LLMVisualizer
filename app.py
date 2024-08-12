@@ -1,6 +1,7 @@
 import streamlit as st
 from next_token_distribution import token_distribution_page
 from attention_visualizer import attention_visualization_page
+from custom_css import apply_custom_css
 
 st.set_page_config(page_title="LLM Playground", page_icon="🤖")
 
@@ -21,7 +22,7 @@ def main():
     st.subheader("LLM Playground")
 
     # Create a layout with columns
-    col1, col2 = st.columns([1, 7])  # Adjust the ratio to control the width
+    col1, col2 = st.columns([1, 6])  # Adjust the ratio to control the width
 
     with col1:
         selected_page = st.selectbox(
@@ -36,6 +37,7 @@ def main():
 
     # Display the selected page
     page = PAGES[st.session_state.page_selection]
+    apply_custom_css()
     page()
 
 
