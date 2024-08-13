@@ -4,3 +4,4 @@
 # TODO: add docstrings and remove comments
 # TODO: fix top p not removing tokens from plot
 # TODO: add top k option to UI/API
+# TODO: fix session storage when switching between profiles

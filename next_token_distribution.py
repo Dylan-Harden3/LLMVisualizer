@@ -12,7 +12,7 @@ BASE_URL = (
 
 
 def get_next_token_distribution_from_api(model_name, input_text):
-    encoded_text = quote(input_text)
+    encoded_text = quote(input_text.rstrip())
     url = f"{BASE_URL}/next_token_distribution?model_name={model_name}&text={encoded_text}"
 
     response = requests.get(url)

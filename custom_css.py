@@ -12,6 +12,7 @@ def apply_custom_css():
         }
         .block-container {
             max-width: 95% !important;
+            padding: 3rem 0rem !important;
         }
         </style>
         """,

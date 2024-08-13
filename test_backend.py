@@ -49,14 +49,17 @@ def test_attention_filters(input_text):
         print(
             f"Shape of first attention matrix: {len(data['attention_matrices'][0])}x{len(data['attention_matrices'][0][0])}x{len(data['attention_matrices'][0][0][0])}"
         )
+        print(
+            f"First attention matrix: {data['attention_matrices'][0][0][0]}"
+        )
     else:
         print(f"Error: {response.status_code} - {response.text}")
 
 
 if __name__ == "__main__":
     print("Testing Next Token Distribution:")
-    for input_text in TEST_INPUTS:
-        test_next_token_distribution(input_text)
+    # for input_text in TEST_INPUTS:
+        # test_next_token_distribution(input_text)
 
     print("\nTesting Attention Filters:")
     for input_text in TEST_INPUTS:

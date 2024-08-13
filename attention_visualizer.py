@@ -1,18 +1,16 @@
 import streamlit as st
 import plotly.graph_objects as go
+import plotly.express as px
 import requests
 from urllib.parse import quote
-import json
-import os
-from transformers import AutoTokenizer
-import torch
-from backend import load_tokenizer
 import numpy as np
+from transformers import AutoTokenizer
+from backend import load_tokenizer
 
 BASE_URL = "http://localhost:5000"  # Adjust if your backend is running on a different URL
 
 def get_attention_filters_from_api(model_name, input_text):
-    encoded_text = quote(input_text)
+    encoded_text = quote(input_text.rstrip())
     url = f"{BASE_URL}/attention_filters?model_name={model_name}&text={encoded_text}"
 
     response = requests.get(url)
@@ -21,38 +19,46 @@ def get_attention_filters_from_api(model_name, input_text):
         return np.array(data["attention_matrices"])
     else:
         st.error(f"Error: {response.status_code} - {response.text}")
-        return None
+        return None, None
 
 def create_attention_plot(tokens, attention_matrix, selected_token=None):
     num_tokens = len(tokens)
-    
-    # Create traces for each pair of tokens
+
+    # Normalize the entire attention matrix
+    attention_matrix_normalized = attention_matrix / attention_matrix.max(axis=1, keepdims=True)
+
+    # Set a threshold for attention values
+    threshold = 0.7
+
+    # Create traces for each pair of tokens with normalization and thresholding
     edge_traces = []
     for i in range(num_tokens):
         for j in range(num_tokens):
-            # Only draw edges related to the selected token (if any)
-            if selected_token is None or i == selected_token or j == selected_token:
-                opacity = attention_matrix[i][j]
+            # Only show edges from/to the selected token and above the threshold
+            if (selected_token is None or i == selected_token or j == selected_token):
+                opacity = min(attention_matrix_normalized[i][j], threshold)
                 edge_trace = go.Scatter(
-                    x=[i, j, None],
-                    y=[0, 1, None],
+                    x=[0, 1, None],
+                    y=[i, j, None],
                     mode="lines",
-                    line=dict(width=2, color=f"rgba(0, 0, 255, {opacity})"),
+                    line=dict(width=2, color=f"rgba(15, 98, 254, {opacity})"),
                     hoverinfo="none",
                 )
                 edge_traces.append(edge_trace)
 
     # Create nodes for the graph
-    node_x = list(range(num_tokens)) * 2
-    node_y = [0] * num_tokens + [1] * num_tokens
+    node_x = [0] * num_tokens + [1] * num_tokens
+    node_y = list(range(num_tokens)) * 2
+    
+    text_positions = ["middle left"] * num_tokens + ["middle right"] * num_tokens
 
     nodes = go.Scatter(
         x=node_x,
         y=node_y,
         mode="markers+text",
-        marker=dict(size=20, color="lightblue"),
+        marker=dict(size=10, color="#0f62fe"),
         text=tokens * 2,
-        textposition="middle center",
+        textposition=text_positions,
         hoverinfo="text",
     )
 
@@ -61,15 +67,49 @@ def create_attention_plot(tokens, attention_matrix, selected_token=None):
         showlegend=False,
         hovermode="closest",
         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-        height=600,
+        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False, autorange='reversed'),
+        height=600,  # Adjust height as necessary for the number of tokens
     )
 
     # Create the figure
     fig = go.Figure(data=edge_traces + [nodes], layout=layout)
 
     return fig
-
+def create_heatmap(tokens, attention_matrix):
+    # Define a more detailed custom color scale using IBM Carbon colors
+    color_scale = [
+        [0, '#d1e3f3'],    # Light Blue
+        [0.25, '#a3c4f8'], # Medium Light Blue
+        [0.5, '#0f62fe'],  # Primary Blue
+        [0.75, '#0033a0'], # Dark Blue
+        [1, '#001f3f']     # Darker Blue for maximum value
+    ]
+    
+    fig = px.imshow(
+        attention_matrix,
+        labels=dict(x="Token", y="Token", color="Attention"),
+        x=tokens,
+        y=tokens,
+        color_continuous_scale=color_scale,  # Apply the custom color scale
+    )
+    
+    # Update layout to maintain the design consistency
+    fig.update_layout(
+        height=600,
+        xaxis_title='Token',
+        yaxis_title='Token',
+        xaxis=dict(title_font=dict(size=12, color='#6f6f6f')),  # Light gray for labels
+        yaxis=dict(title_font=dict(size=12, color='#6f6f6f')),  # Light gray for labels
+        coloraxis_colorbar=dict(
+            title="Attention",
+            tickvals=[0, 0.25, 0.5, 0.75, 1],
+            ticktext=["0", "0.25", "0.5", "0,.75", "1"],
+            title_font=dict(size=12, color='#6f6f6f')  # Light gray
+        ),
+        plot_bgcolor="#f4f4f4",  # Light background color
+    )
+    
+    return fig
 def attention_visualization_page():
     if "api_results" not in st.session_state:
         st.session_state.api_results = None
@@ -84,6 +124,7 @@ def attention_visualization_page():
     if "selected_token" not in st.session_state:
         st.session_state.selected_token = None
 
+    # Use columns to arrange the UI elements above the plots
     col1, col2, col3 = st.columns([3, 1, 1])
 
     with col1:
@@ -107,22 +148,30 @@ def attention_visualization_page():
             key="head_selection"
         )
 
+    # Placeholder for the spinner
+    spinner_placeholder = st.empty()
+
+    # Create placeholders for plots
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        plot1_placeholder = st.empty()
+    with col2:
+        plot2_placeholder = st.empty()
+
+    # Create and display the input text area below the plots
     user_input = st.text_area(
         "Enter text for attention visualization:",
         height=100,
         key="input_text"
     )
 
-    plot_placeholder = st.empty()
-    spinner_placeholder = st.empty()
-
     # Load the tokenizer
     tokenizer = load_tokenizer(model_name)
 
     # Tokenize the input
-    tokens = tokenizer.tokenize(user_input)
+    tokens = tokenizer(user_input, return_tensors="pt")
+    tokens = tokenizer.convert_ids_to_tokens(tokens['input_ids'][0].tolist())
     tokens = [token.replace("Ġ", "") for token in tokens]
-    print(tokens)
 
     # Check if the input text has changed or if we need to fetch new results
     if user_input and (st.session_state.api_results is None or user_input != st.session_state.api_results["context"] or model_name != st.session_state.current_model):
@@ -149,19 +198,19 @@ def attention_visualization_page():
     if st.session_state.api_results is not None:
         attention_matrices = st.session_state.api_results["attention_matrices"]
 
-        # Create and display the plot
+        # Create and display the plots
         attention_matrix = attention_matrices[layer_index][0][head_index]
-        fig = create_attention_plot(tokens, attention_matrix, st.session_state.selected_token)
-        plot_placeholder.plotly_chart(fig, use_container_width=True)
 
-        # Handle token click events
-        clicked_data = st.plotly_events(fig, click_event=True)
-        if clicked_data:
-            clicked_token = clicked_data[0]['x']  # Get the x-coordinate (token index)
-            if st.session_state.selected_token == clicked_token:
-                st.session_state.selected_token = None  # Deselect if the same token is clicked
-            else:
-                st.session_state.selected_token = clicked_token  # Set the clicked token as selected
+        # Create and display the plots side by side
+        with st.container():
+            col1, col2 = st.columns(2)
+            with col1:
+                fig1 = create_attention_plot(tokens, attention_matrix, st.session_state.selected_token)
+                plot1_placeholder.plotly_chart(fig1, use_container_width=True)
+
+            with col2:
+                fig2 = create_heatmap(tokens, attention_matrix)
+                plot2_placeholder.plotly_chart(fig2, use_container_width=True)
 
 if __name__ == "__main__":
     attention_visualization_page()

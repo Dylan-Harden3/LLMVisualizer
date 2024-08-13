@@ -85,7 +85,7 @@ def load_model_and_tokenizer(model_name):
 @app.route("/next_token_distribution", methods=["GET"])
 def next_token_distribution():
     model_name = request.args.get("model_name")
-    input_text = request.args.get("text").rstrip()
+    input_text = request.args.get("text")
 
     if not model_name or not input_text:
         return jsonify({"error": "Missing model_name or text parameter"}), 400
