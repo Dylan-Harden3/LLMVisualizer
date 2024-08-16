@@ -1,5 +1,9 @@
 import torch
 import torch.nn.functional as F
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def temperature_sampling(logits, temperature):
@@ -31,7 +35,6 @@ def top_p_sampling(logits, top_p=0.9):
     sorted_logits, sorted_indices = torch.sort(logits, descending=True)
     cumulative_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1), dim=-1)
 
-    # Remove tokens with cumulative probability above the threshold
     sorted_indices_to_remove = cumulative_probs > top_p
     sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
     sorted_indices_to_remove[..., 0] = 0
@@ -39,3 +42,13 @@ def top_p_sampling(logits, top_p=0.9):
     indices_to_remove = sorted_indices[sorted_indices_to_remove]
     logits[indices_to_remove] = -float("Inf")
     return logits
+
+
+def get_models():
+    """
+    Load model names list from .env
+
+    Returns:
+        List[str]: list of hugging face repo names.
+    """
+    return os.getenv("MODELS").split(",")
