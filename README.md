@@ -1,4 +1,4 @@
-# 🎡 LLMPlayground 🎡
+# 🤖 LLMPlayground
 LLMPlayground is a Streamlit application designed for visualizing next token predictions and attention filters for open-source Large Language Models (LLMs).
 
 ## 🚀 Installation
