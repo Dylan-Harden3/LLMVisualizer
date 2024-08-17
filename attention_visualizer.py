@@ -62,7 +62,7 @@ def create_attention_plot(tokens, attention_matrix, selected_token=None):
                     x=[0, 1, None],
                     y=[i, j, None],
                     mode="lines",
-                    line=dict(width=2, color=f"rgba(15, 98, 254, {opacity})"),
+                    line=dict(width=2, color=f"rgba(15, 98, 254, {opacity:.5f})"),
                     hoverinfo="none",
                 )
                 edge_traces.append(edge_trace)
