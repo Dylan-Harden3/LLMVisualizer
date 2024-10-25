@@ -10,7 +10,6 @@ LLMPlayground is a Streamlit application designed for visualizing next token pre
 
 ### 🖥️ System Requirements
 To get the best experience with LLMPlayground, you'll need a CUDA-compatible GPU. I tested this on an NVIDIA RTX 2070 with 8GB of RAM. For CUDA installation, follow the [official NVIDIA CUDA Installation Guide](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) and grab version 12.1 of the toolkit.
-You need a CUDA-compatible GPU. This application has been tested on an NVIDIA RTX 2070 with 8GB of RAM. Follow the [official NVIDIA CUDA Installation Guide](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) and with version 12.1 of the toolkit.
 
 ### 🛠️ Setting Up PyTorch
 Install PyTorch with CUDA support by running the following command:
